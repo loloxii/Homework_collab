@@ -1,0 +1,14 @@
+{
+  "id": 15,
+  "name": "英语学习Day 2",
+  "description": "学习英语20分钟",
+  "assignee": [
+    "爸爸"
+  ],
+  "tutoringMethod": "爸爸监督小朋友学习英语，确保学习时间。",
+  "day": "Day 2",
+  "start": "15:00",
+  "end": "15:20",
+  "done": true,
+  "homeworkImage": []
+}

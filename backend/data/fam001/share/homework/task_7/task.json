@@ -1,0 +1,14 @@
+{
+  "id": 7,
+  "name": "写字帖第3页",
+  "description": "规范书写汉字",
+  "assignee": [
+    "妈妈"
+  ],
+  "tutoringMethod": "妈妈指导小朋友书写规范，注意笔画顺序和结构。",
+  "day": "Day 3",
+  "start": "09:00",
+  "end": "09:30",
+  "done": false,
+  "homeworkImage": []
+}

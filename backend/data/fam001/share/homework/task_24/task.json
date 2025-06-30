@@ -1,0 +1,14 @@
+{
+  "id": 24,
+  "name": "提醒英语学习",
+  "description": "提醒小朋友学习英语",
+  "assignee": [
+    "奶奶"
+  ],
+  "tutoringMethod": "奶奶在白天提醒小朋友学习英语的时间。",
+  "day": "Day 4",
+  "start": "14:00",
+  "end": "14:10",
+  "done": false,
+  "homeworkImage": []
+}

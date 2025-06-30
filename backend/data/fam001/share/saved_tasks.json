@@ -1,0 +1,72 @@
+[
+  {
+    "id": 2,
+    "name": "背诵《观书有感》其一",
+    "description": "熟练背诵诗歌",
+    "assignee": [
+      "爸爸"
+    ],
+    "tutoringMethod": "爸爸监督小朋友背诵，纠正发音和节奏。",
+    "day": "Day 2",
+    "start": "19:00",
+    "end": "19:20",
+    "done": true,
+    "homeworkImage": []
+  },
+  {
+    "id": 7,
+    "name": "写字帖第3页",
+    "description": "规范书写汉字",
+    "assignee": [
+      "妈妈"
+    ],
+    "tutoringMethod": "妈妈指导小朋友书写规范，注意笔画顺序和结构。",
+    "day": "Day 3",
+    "start": "09:00",
+    "end": "09:30",
+    "done": false,
+    "homeworkImage": []
+  },
+  {
+    "id": 14,
+    "name": "英语学习Day 1",
+    "description": "学习英语20分钟",
+    "assignee": [
+      "妈妈"
+    ],
+    "tutoringMethod": "妈妈选择适合的英语学习内容，监督小朋友学习。",
+    "day": "Day 1",
+    "start": "15:00",
+    "end": "15:20",
+    "done": false,
+    "homeworkImage": []
+  },
+  {
+    "id": 15,
+    "name": "英语学习Day 2",
+    "description": "学习英语20分钟",
+    "assignee": [
+      "爸爸"
+    ],
+    "tutoringMethod": "爸爸监督小朋友学习英语，确保学习时间。",
+    "day": "Day 2",
+    "start": "15:00",
+    "end": "15:20",
+    "done": true,
+    "homeworkImage": []
+  },
+  {
+    "id": 24,
+    "name": "提醒英语学习",
+    "description": "提醒小朋友学习英语",
+    "assignee": [
+      "奶奶"
+    ],
+    "tutoringMethod": "奶奶在白天提醒小朋友学习英语的时间。",
+    "day": "Day 4",
+    "start": "14:00",
+    "end": "14:10",
+    "done": false,
+    "homeworkImage": []
+  }
+]
