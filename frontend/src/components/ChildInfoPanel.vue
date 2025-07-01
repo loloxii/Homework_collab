@@ -48,6 +48,11 @@
         </el-select>
       </el-form-item>
 
+
+      <el-form-item label="生活地区">
+        <el-input v-model="child.region" placeholder="如：北京 / 上海 / 广州" />
+      </el-form-item>
+
       <!-- 擅长科目 -->
       <!-- <el-form-item label="擅长科目">
         <el-select
@@ -78,6 +83,7 @@ const gradeOptions = ['一年级', '二年级', '三年级', '四年级', '五�
 const hobbyOptions = ['绘画', '写作', '阅读', '运动', '音乐']
 const traitOptions = ['开朗', '细心', '有耐心', '爱表达', '逻辑强']
 const subjectOptions = ['语文', '数学', '英语', '科学', '美术']
+
 </script>
 
 <style scoped>

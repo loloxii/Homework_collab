@@ -8,7 +8,7 @@ import os
 import re
 from dotenv import load_dotenv
 
-
+load_dotenv() 
 # 初始化 DeepSeek Chat 模型
 llm = ChatOpenAI(
     model="deepseek-chat",    #"deepseek-chat"
@@ -88,95 +88,95 @@ def generate_task_plan(family_id: str) -> dict:
 
 
 
-def chat_with_feedback(family_id: str, user_feedback: str) -> str:
-    base_dir = f"/Users/liyao/Desktop/project/pvi/New_HW/backend/data/{family_id}/share"
-    task_path = os.path.join(base_dir, "saved_tasks.json")
-    suggestion_path = os.path.join(base_dir, "general_suggestion.json")
-    history_path = os.path.join(base_dir, "task_allocation_chat_history.json")
+# def chat_with_feedback(family_id: str, user_feedback: str) -> str:
+#     base_dir = f"/Users/liyao/Desktop/project/pvi/New_HW/backend/data/{family_id}/share"
+#     task_path = os.path.join(base_dir, "saved_tasks.json")
+#     suggestion_path = os.path.join(base_dir, "general_suggestion.json")
+#     history_path = os.path.join(base_dir, "task_allocation_chat_history.json")
 
-    # ✅ 自动加载家庭结构数据
-    child_info, members, homework_descriptions = load_family_data_with_members(family_id)
+#     # ✅ 自动加载家庭结构数据
+#     child_info, members, homework_descriptions = load_family_data_with_members(family_id)
 
-    messages: list[BaseMessage] = []
+#     messages: list[BaseMessage] = []
 
-    # 若存在历史则加载
-    if os.path.exists(history_path):
-        with open(history_path, "r", encoding="utf-8") as f:
-            raw = json.load(f)
-            for msg in raw:
-                if msg["type"] == "human":
-                    messages.append(HumanMessage(content=msg["content"]))
-                elif msg["type"] == "ai":
-                    messages.append(AIMessage(content=msg["content"]))
-    else:
-        # 首次构造上下文
-        with open(task_path, "r", encoding="utf-8") as f:
-            saved_tasks = json.load(f)
-        with open(suggestion_path, "r", encoding="utf-8") as f:
-            general_suggestion = json.load(f)
+#     # 若存在历史则加载
+#     if os.path.exists(history_path):
+#         with open(history_path, "r", encoding="utf-8") as f:
+#             raw = json.load(f)
+#             for msg in raw:
+#                 if msg["type"] == "human":
+#                     messages.append(HumanMessage(content=msg["content"]))
+#                 elif msg["type"] == "ai":
+#                     messages.append(AIMessage(content=msg["content"]))
+#     else:
+#         # 首次构造上下文
+#         with open(task_path, "r", encoding="utf-8") as f:
+#             saved_tasks = json.load(f)
+#         with open(suggestion_path, "r", encoding="utf-8") as f:
+#             general_suggestion = json.load(f)
 
-        # ✅ prompt 构建时也可以加入 homework_descriptions
-        intro = build_chat_intro_prompt(child_info, members, saved_tasks, general_suggestion)
+#         # ✅ prompt 构建时也可以加入 homework_descriptions
+#         intro = build_chat_intro_prompt(child_info, members, saved_tasks, general_suggestion)
 
-        intro_path = os.path.join(base_dir, "debug_intro_prompt2.txt")
-        with open(intro_path, "w", encoding="utf-8") as txt_file:
-            txt_file.write(intro)
+#         intro_path = os.path.join(base_dir, "debug_intro_prompt2.txt")
+#         with open(intro_path, "w", encoding="utf-8") as txt_file:
+#             txt_file.write(intro)
 
-        messages.append(HumanMessage(content=intro))
-        messages.append(AIMessage(content="✅ 我已了解当前情况，请问您希望我如何调整？"))
+#         messages.append(HumanMessage(content=intro))
+#         messages.append(AIMessage(content="✅ 我已了解当前情况，请问您希望我如何调整？"))
 
-    messages.append(HumanMessage(content=user_feedback))
+#     messages.append(HumanMessage(content=user_feedback))
 
-    response = llm(messages)
-    messages.append(AIMessage(content=response.content))
+#     response = llm(messages)
+#     messages.append(AIMessage(content=response.content))
 
-    with open(history_path, "w", encoding="utf-8") as f:
-        json.dump(
-            [{"type": "human" if isinstance(m, HumanMessage) else "ai", "content": m.content} for m in messages],
-            f,
-            ensure_ascii=False,
-            indent=2
-        )
+#     with open(history_path, "w", encoding="utf-8") as f:
+#         json.dump(
+#             [{"type": "human" if isinstance(m, HumanMessage) else "ai", "content": m.content} for m in messages],
+#             f,
+#             ensure_ascii=False,
+#             indent=2
+#         )
 
-    return response.content
-
-
+#     return response.content
 
 
-def refresh_chat_history(family_id: str):
-    """
-    刷新并重置对话历史为当前 saved_tasks + general_suggestion 内容
-    """
-    base_dir = f"/Users/liyao/Desktop/project/pvi/New_HW/backend/data/{family_id}/share"
-    history_path = os.path.join(base_dir, "task_allocation_chat_history.json")
-    task_path = os.path.join(base_dir, "saved_tasks.json")
-    suggestion_path = os.path.join(base_dir, "general_suggestion.json")
 
-    with open(task_path, "r", encoding="utf-8") as f:
-        saved_tasks = json.load(f)
-    with open(suggestion_path, "r", encoding="utf-8") as f:
-        general_suggestion = json.load(f)
 
-    child_info, members, homework_descriptions = load_family_data_with_members(family_id)
-    intro = build_chat_intro_prompt(child_info, members, saved_tasks, general_suggestion)
+# def refresh_chat_history(family_id: str):
+#     """
+#     刷新并重置对话历史为当前 saved_tasks + general_suggestion 内容
+#     """
+#     base_dir = f"/Users/liyao/Desktop/project/pvi/New_HW/backend/data/{family_id}/share"
+#     history_path = os.path.join(base_dir, "task_allocation_chat_history.json")
+#     task_path = os.path.join(base_dir, "saved_tasks.json")
+#     suggestion_path = os.path.join(base_dir, "general_suggestion.json")
 
-    intro_path = os.path.join(base_dir, "debug_intro_prompt3.txt")
-    with open(intro_path, "w", encoding="utf-8") as txt_file:
-        txt_file.write(intro)
+#     with open(task_path, "r", encoding="utf-8") as f:
+#         saved_tasks = json.load(f)
+#     with open(suggestion_path, "r", encoding="utf-8") as f:
+#         general_suggestion = json.load(f)
 
-    # intro = (
-    #     "以下是该家庭目前的任务分工表和协作建议，请根据用户后续反馈给出合理的修改建议。"
-    #     "建议需要简洁明了，用户能够清晰易懂，不能使用JSON格式返回任务数据到前端。\n\n"
-    #     f"【任务分工表】\n{json.dumps(saved_tasks, ensure_ascii=False, indent=2)}\n\n"
-    #     f"【协作建议】\n{json.dumps(general_suggestion, ensure_ascii=False, indent=2)}"
-    # )
+#     child_info, members, homework_descriptions = load_family_data_with_members(family_id)
+#     intro = build_chat_intro_prompt(child_info, members, saved_tasks, general_suggestion)
 
-    history = [
-        {"type": "human", "content": intro},
-        {"type": "ai", "content": "✅ 好的，我已了解当前任务安排，请问您有什么建议或反馈？"}
-    ]
+#     intro_path = os.path.join(base_dir, "debug_intro_prompt3.txt")
+#     with open(intro_path, "w", encoding="utf-8") as txt_file:
+#         txt_file.write(intro)
 
-    with open(history_path, "w", encoding="utf-8") as f:
-        json.dump(history, f, ensure_ascii=False, indent=2)
+#     # intro = (
+#     #     "以下是该家庭目前的任务分工表和协作建议，请根据用户后续反馈给出合理的修改建议。"
+#     #     "建议需要简洁明了，用户能够清晰易懂，不能使用JSON格式返回任务数据到前端。\n\n"
+#     #     f"【任务分工表】\n{json.dumps(saved_tasks, ensure_ascii=False, indent=2)}\n\n"
+#     #     f"【协作建议】\n{json.dumps(general_suggestion, ensure_ascii=False, indent=2)}"
+#     # )
+
+#     history = [
+#         {"type": "human", "content": intro},
+#         {"type": "ai", "content": "✅ 好的，我已了解当前任务安排，请问您有什么建议或反馈？"}
+#     ]
+
+#     with open(history_path, "w", encoding="utf-8") as f:
+#         json.dump(history, f, ensure_ascii=False, indent=2)
 
 

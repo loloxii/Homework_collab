@@ -158,123 +158,177 @@
 
 
 
+# backend/prompts/task_allocation_prompt.py
 
 
 
 
 
 
+def build_task_split_prompt(task_name: str, task_description: str, child_info: dict, family_education_concepts: list) -> str:
+    """
+    构造用于任务分解的 prompt，结合小朋友的特点和家长的教育理念
 
+    Args:
+        task_name (str): 当前任务名（如 task1）
+        task_description (str): 当前任务内容（如 "背诵2首诗"）
+        child_info (dict): 小朋友的信息，包括 age, grades, hobbies, traits
+        family_education_concepts (list): 家庭成员的教育理念，每个元素是字典 {role, subjectPreference, educationConcept}
 
-
-
-
-
-
-
-
-import json
-#任务分工的prompt
-def build_homework_allocation_prompt(child_info: dict, members: list, homework_descriptions: str) -> str:
+    Returns:
+        str: prompt 给大模型调用
+    """
+    child_desc = f"小朋友今年 {child_info['age']} 岁，年级是 {'、'.join(child_info['grades'])}，生活在{'、'.join(child_info['region'])}。兴趣包括：{'、'.join(child_info['hobbies'])}，性格特点是：{'、'.join(child_info['traits'])}。"
     
-    return f"""
-你是一位在家庭合作策略与任务规划领域拥有丰富经验的儿童家庭教育专家。现在你需要协助一个家庭**高效地协作完成孩子的假期作业**，并促进小朋友综合能力的成长；
-在设计任务时，请充分考虑家庭成员的特长，个人优势，以及小朋友的年龄，认知水平，兴趣爱好，性格特点，擅长科目；
-你的目标是通过合理的任务分工和协作，帮助小朋友在家庭作业中全面提升能力，同时促进家庭成员之间的合作与沟通；
-将每个家庭作业内容拆解为多个小任务，并合理分配给家庭成员，尽量让每个家庭成员都要参与。每个小任务都要明确目标、负责人、辅导方式以及培养的小朋友能力;
-每个家庭作业都要有多位家庭成员的参与。
+    family_desc = "以下是各个家庭成员希望小朋友在完成作业过程中培养的技能：\n"
+    for member in family_education_concepts:
+        family_desc += f"- {member['role']} 希望小朋友能够：{member.get('educationConcept', '无')}\n"
 
-注意：
-1. 该小朋友是{', '.join(child_info.get("grade"))}小学生，生成的内容要符合该年级的小朋友学习；
+    return f"""你是一位在家庭作业规划的小学生家庭教育专家，现在你需要协助父母进行作业规划。
 
+你的任务是将下面这项任务“{task_name}：{task_description}”细分成适合家长和小学生一起完成的若干子任务。请确保子任务符合小朋友的年龄和年级发展水平，语言简单易懂，并能结合小朋友的兴趣和性格特点。同时参考家长的教育理念，以提升任务的实用性和家庭配合度。
 
+{child_desc}
 
-请基于以下信息，为他们设计一份**详细的家庭辅导计划**，包括合理的任务拆解和具体的分工安排。
----
-小朋友信息：
-{child_info}
-
-家庭成员信息：
-{format_family_members(members)}
-
-多个家庭作业内容：
-{homework_descriptions}
-
----
-
-必须生成以下内容：
-1. 本周任务总结：对本周需要完成的假期作业，对每个假期作业中所有子任务进行总结；
-2. 家庭成员合作建议:对每一个家庭作业，分别说明家庭成员如何配合完整每一个子任务，输出需要是字符串；
-3. 任务分工表：请将每个“家庭作业”细化为小任务，包含每天的作业安排和每个家庭成员的具体任务，并为每个任务明确指定负责的家庭成员；
-    3.1 每个子任务需要指定：
-        - 任务名称
-        - 辅导人（家庭成员姓名）
-        - 辅导方式说明 （如何协助与辅导）
-        - 第几天（Day 1 到 Day 7）
-        - 开始作业时间（时间返回格式比如:09:00）
-        - 预计结束时间（时间返回格式比如:15:00）
-    3.2 每个任务需具有唯一 ID，从 1 开始编号；
-    3.3 辅导人中只能出现家庭成员的角色，辅导人不能是小朋友，不能够出现“合作”，每个小任务都需要一位有具体的辅导人者；
-    3.4 所有任务需以 JSON 数组返回，字段包括：
-        - id, name, assignee, day, start, end, done（初始为 false）, homeworkImage（为空数组）；
-    3.5 开始时间和结束时间不能全部集中在同一时间段，应该分散在每天的不同时间段，若在家庭成员不可以辅导的时间，可以安排一些小朋友能够独立在家完成的任务。
-    3.6 早上，下午，晚上，各个时间段至少要有1个小任务
-    3.7 分配给每位家庭成员的任务数量要尽可能相等
-4. 生成家长辅导小朋友作业过程中的温馨建议；
+{family_desc}
 
 
-请以 JSON 数组格式输出，结构如下：
+请以以下格式输出，仅限 JSON 格式，不添加多余解释：
 {{
-  "本周任务表总结":“”,
-  “家庭成员合作建议”: “”,
-  "任务分工表": [
-    {{
-      "id": 1,
-      "name": "任务名称",
-      “description”: "任务目标与内容"
-      "assignee": "辅导人姓名",
-      “tutoringMethod”: "如何协助与辅导",
-      "day": "",
-      "start": "",
-      "end": "",
-      "done": false,
-      "homeworkImage": []
-    }},
-  "温馨建议": "",
-    ...
-  ]
+  "{task_name}_1": {{
+    "子任务": "...",
+    "目标": "..."
+  }},
+  "{task_name}_2": {{
+    "子任务": "...",
+    "目标": "..."
+  }}
 }}
-
-""".strip()
-
-
-
-# 在任务分配时引导用户进行继续对话的prompt
-def build_chat_intro_prompt(child_info: dict, members: list, saved_tasks: dict, general_suggestion: dict) -> str:
-    return f"""
-你现在是一名了解家庭背景的作业协作助手。
-以下是该家庭的孩子信息、家庭成员信息、任务分工表和协作建议。请你在与家长的对话中，根据其反馈生成**简洁明了、清晰易懂、个性化**的修改建议。
-
-请注意：
-1. 不得使用 JSON 格式返回任务数据；
-2. 生成的建议必须符合{', '.join(child_info.get('grade', []))}小朋友的学习能力和知识储备；
-3. 需要考虑家庭成员的辅导时间和擅长科目，建议内容应与家庭成员的偏好和能力相匹配；
-4. 建议内容应结合小朋友的年级、作业类型、学习习惯，以及家长的辅导时间与擅长科目；
-3. 建议应在已有安排基础上进行微调，而非完全重写；
-4. 请用鼓励、亲切的语气引导家长提出反馈，共同优化任务分工。
-
-
-【家庭成员信息】
-{format_family_members(members)}
-
-【任务分工表】
-{json.dumps(saved_tasks, ensure_ascii=False, indent=2)}
-
-【协作建议】
-{json.dumps(general_suggestion, ensure_ascii=False, indent=2)}
-""".strip()
+"""
 
 
 
-def format_family_members(members: list) -> str:
-    return "\n".join([f"- {m['role']}，比较擅长{m['subjectPreference']}, 可以进行辅导的时间段：{m['educationConcept']}" for m in members])
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# import json
+# #任务分工的prompt
+# def build_homework_allocation_prompt(child_info: dict, members: list, homework_descriptions: str) -> str:
+    
+#     return f"""
+# 你是一位在家庭合作策略与任务规划领域拥有丰富经验的儿童家庭教育专家。现在你需要协助一个家庭**高效地协作完成孩子的假期作业**，并促进小朋友综合能力的成长；
+# 在设计任务时，请充分考虑家庭成员的特长，个人优势，以及小朋友的年龄，认知水平，兴趣爱好，性格特点，擅长科目；
+# 你的目标是通过合理的任务分工和协作，帮助小朋友在家庭作业中全面提升能力，同时促进家庭成员之间的合作与沟通；
+# 将每个家庭作业内容拆解为多个小任务，并合理分配给家庭成员，尽量让每个家庭成员都要参与。每个小任务都要明确目标、负责人、辅导方式以及培养的小朋友能力;
+# 每个家庭作业都要有多位家庭成员的参与。
+
+# 注意：
+# 1. 该小朋友是{', '.join(child_info.get("grade"))}小学生，生成的内容要符合该年级的小朋友学习；
+
+
+
+# 请基于以下信息，为他们设计一份**详细的家庭辅导计划**，包括合理的任务拆解和具体的分工安排。
+# ---
+# 小朋友信息：
+# {child_info}
+
+# 家庭成员信息：
+# {format_family_members(members)}
+
+# 多个家庭作业内容：
+# {homework_descriptions}
+
+# ---
+
+# 必须生成以下内容：
+# 1. 本周任务总结：对本周需要完成的假期作业，对每个假期作业中所有子任务进行总结；
+# 2. 家庭成员合作建议:对每一个家庭作业，分别说明家庭成员如何配合完整每一个子任务，输出需要是字符串；
+# 3. 任务分工表：请将每个“家庭作业”细化为小任务，包含每天的作业安排和每个家庭成员的具体任务，并为每个任务明确指定负责的家庭成员；
+#     3.1 每个子任务需要指定：
+#         - 任务名称
+#         - 辅导人（家庭成员姓名）
+#         - 辅导方式说明 （如何协助与辅导）
+#         - 第几天（Day 1 到 Day 7）
+#         - 开始作业时间（时间返回格式比如:09:00）
+#         - 预计结束时间（时间返回格式比如:15:00）
+#     3.2 每个任务需具有唯一 ID，从 1 开始编号；
+#     3.3 辅导人中只能出现家庭成员的角色，辅导人不能是小朋友，不能够出现“合作”，每个小任务都需要一位有具体的辅导人者；
+#     3.4 所有任务需以 JSON 数组返回，字段包括：
+#         - id, name, assignee, day, start, end, done（初始为 false）, homeworkImage（为空数组）；
+#     3.5 开始时间和结束时间不能全部集中在同一时间段，应该分散在每天的不同时间段，若在家庭成员不可以辅导的时间，可以安排一些小朋友能够独立在家完成的任务。
+#     3.6 早上，下午，晚上，各个时间段至少要有1个小任务
+#     3.7 分配给每位家庭成员的任务数量要尽可能相等
+# 4. 生成家长辅导小朋友作业过程中的温馨建议；
+
+
+# 请以 JSON 数组格式输出，结构如下：
+# {{
+#   "本周任务表总结":“”,
+#   “家庭成员合作建议”: “”,
+#   "任务分工表": [
+#     {{
+#       "id": 1,
+#       "name": "任务名称",
+#       “description”: "任务目标与内容"
+#       "assignee": "辅导人姓名",
+#       “tutoringMethod”: "如何协助与辅导",
+#       "day": "",
+#       "start": "",
+#       "end": "",
+#       "done": false,
+#       "homeworkImage": []
+#     }},
+#   "温馨建议": "",
+#     ...
+#   ]
+# }}
+
+# """.strip()
+
+
+
+# # 在任务分配时引导用户进行继续对话的prompt
+# def build_chat_intro_prompt(child_info: dict, members: list, saved_tasks: dict, general_suggestion: dict) -> str:
+#     return f"""
+# 你现在是一名了解家庭背景的作业协作助手。
+# 以下是该家庭的孩子信息、家庭成员信息、任务分工表和协作建议。请你在与家长的对话中，根据其反馈生成**简洁明了、清晰易懂、个性化**的修改建议。
+
+# 请注意：
+# 1. 不得使用 JSON 格式返回任务数据；
+# 2. 生成的建议必须符合{', '.join(child_info.get('grade', []))}小朋友的学习能力和知识储备；
+# 3. 需要考虑家庭成员的辅导时间和擅长科目，建议内容应与家庭成员的偏好和能力相匹配；
+# 4. 建议内容应结合小朋友的年级、作业类型、学习习惯，以及家长的辅导时间与擅长科目；
+# 3. 建议应在已有安排基础上进行微调，而非完全重写；
+# 4. 请用鼓励、亲切的语气引导家长提出反馈，共同优化任务分工。
+
+
+# 【家庭成员信息】
+# {format_family_members(members)}
+
+# 【任务分工表】
+# {json.dumps(saved_tasks, ensure_ascii=False, indent=2)}
+
+# 【协作建议】
+# {json.dumps(general_suggestion, ensure_ascii=False, indent=2)}
+# """.strip()
+
+
+
+# def format_family_members(members: list) -> str:
+#     return "\n".join([f"- {m['role']}，比较擅长{m['subjectPreference']}, 可以进行辅导的时间段：{m['educationConcept']}" for m in members])

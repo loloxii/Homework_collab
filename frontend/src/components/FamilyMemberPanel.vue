@@ -24,14 +24,26 @@
           </el-select>
         </el-form-item>
 
-        <el-form-item label="可辅导时段">
+        <el-form-item label="教育理念">
           <el-input
             v-model="member.educationConcept"
             type="textarea"
             :rows="2"
-            placeholder="填写您能陪伴孩子的时间段，我们将为您生成个性化任务计划"
+            placeholder="您希望小朋友在学习中培养哪些能力？"
           />
         </el-form-item>
+
+
+                <el-form-item label="可辅导时间">
+          <el-input
+            v-model="member.availableTime"
+            type="textarea"
+            :rows="2"
+            placeholder="填写您能陪伴孩子的时间段"
+          />
+        </el-form-item>
+
+
       </el-form>
     </el-card>
   </div>

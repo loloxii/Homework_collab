@@ -72,13 +72,16 @@ const child = reactive({
   age: '',
   grades: [],
   hobbies: [],
-  traits: []
+  traits: [],
+  region: ''
 })
 
 const familyMember = reactive({
   role: '',
   subjectPreference: [],
-  educationConcept: ''
+  educationConcept: '',
+  availableTime: '',
+
 })
 
 onMounted(() => {

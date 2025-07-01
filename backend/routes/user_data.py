@@ -11,7 +11,7 @@ class ChildPayload(BaseModel):
     family_id: str
     child: dict
 
-BASE_PATH = "/Users/liyao/Desktop/project/pvi/New_HW/backend/data"
+BASE_PATH = "/Users/liyao/Desktop/project/pvi/New_HW_v2/backend/data"
 
 # ✅ 保存共享：小朋友信息 → 存到 share 文件夹中
 @router.post("/save/child")

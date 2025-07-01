@@ -80,8 +80,9 @@ async def get_uploaded_files(family_id: str = Query(...), task_id: str = Query(.
 #文本框上传内容的接口
 class DescriptionRequest(BaseModel):
     family_id: str
-    description: str
+    descriptions: dict
    #接受从前端传来的任务描述信息，并保存到对应的家庭目录下的 task_description.json 文件中
+# 📥 保存任务描述（前端点击“保存任务”触发）
 @router.post("/save_task_description")
 def save_task_description(data: DescriptionRequest):
     base_path = Path(__file__).resolve().parent.parent / "data" / data.family_id / "share"
@@ -89,22 +90,23 @@ def save_task_description(data: DescriptionRequest):
     save_file = base_path / "task_description.json"
 
     with open(save_file, "w", encoding="utf-8") as f:
-        json.dump({"description": data.description}, f, ensure_ascii=False, indent=2)
+        json.dump(data.descriptions, f, ensure_ascii=False, indent=2)
 
     return {"message": "描述信息已保存", "path": str(save_file)}
-    #将task_description.json文件中的任务描述信息读取出来，并返回给前端（保证刷新和每一位家庭成员能够看到）
+
+# 📤 获取任务描述（页面刷新/成员进入页面时拉取）
 @router.get("/get_task_description")
 def get_description(family_id: str = Query(...)):
     path = Path(__file__).resolve().parent.parent / "data" / family_id / "share" / "task_description.json"
     if not path.exists():
-        return {"description": ""}
+        return {"descriptions": {}}
+
     try:
         with open(path, "r", encoding="utf-8") as f:
             data = json.load(f)
-        return {"description": data.get("description", "")}
+        return {"descriptions": data}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"读取失败：{e}")
-
 
 
 
